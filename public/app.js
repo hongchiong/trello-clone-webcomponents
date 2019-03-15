@@ -1,7 +1,6 @@
 class TrelloBoard extends HTMLElement {
   constructor() {
     super();
-
     let context = this;
     fetch("http://localhost:3000/columns")
       .then(function(response) {
@@ -16,11 +15,6 @@ class TrelloBoard extends HTMLElement {
           column.title = myJson[i].title;
           context.shadowRoot.appendChild(column);
         }
-        // document.querySelector("trello-column").addEventListener("click", function() {
-        //   console.log("CLICK");
-        //   // document.querySelector("trello-card").shadowRoot.innerHTML = "CLICKED";
-        //   this.shadowRoot.innerHTML = "CLCICKCK";
-        // })
       })
   }
 }
@@ -67,11 +61,14 @@ class TrelloColumn extends HTMLElement {
 window.customElements.define("trello-column", TrelloColumn);
 
 
+
 class TrelloCard extends HTMLElement {
   constructor() {
     super();
 
     this.attachShadow({ mode: "open" });
+
+
   }
 
   static get observedAttributes() {
@@ -79,22 +76,24 @@ class TrelloCard extends HTMLElement {
   }
 
   attributeChangedCallback(name ,oldVal, newVal) {
-    switch (name) {
-      case "id":
-        break;
+    this.shadowRoot.innerHTML = `
+      <div>
+        <h4 class="hihi">${this.getAttribute("title")}</h4>
+        <p>${this.getAttribute("description")}</p>
+        <button>Delete</button>
+      </div>
+    `;
+  }
 
-      case "title":
-       break;
-
-      case "description":
-        this.shadowRoot.innerHTML = newVal;
-        break;
-    }
-    // console.log(name, oldVal, newVal);
-    // if (name === "description") {
-    //   console.log(newVal);
-    //   this.shadowRoot.innerHTML = newVal;
-    // };
+  connectedCallback() {
+    let thisCard = this;
+    thisCard.shadowRoot.querySelector('button').addEventListener('click', function(e) {
+      fetch(`http://localhost:3000/cards/${thisCard.getAttribute("id")}`, {
+        method: "DELETE"
+      })
+      .then(response => response.json());
+      thisCard.parentNode.removeChild(thisCard);
+    });
   }
 }
 window.customElements.define("trello-card", TrelloCard);
