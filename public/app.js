@@ -73,27 +73,68 @@ class TrelloColumn extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
+    let colContext = this;
+
+    function loadCards() {
+      while (colContext.shadowRoot.childNodes.length > 1) {
+          colContext.shadowRoot.removeChild(colContext.shadowRoot.lastChild);
+      }
+
+      fetch(`http://localhost:3000/cards?columnId=${newVal}`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          console.log(colContext.shadowRoot.innerHTML, myJson);
+          for (let j = 0; j < myJson.length; j++) {
+            let card = document.createElement('trello-card');
+            card.id = myJson[j].id;
+            card.title = myJson[j].title;
+            card.setAttribute('description', myJson[j].description);
+            colContext.shadowRoot.appendChild(card);
+          }
+
+          let addCardBtn = document.createElement("BUTTON");
+          let text = document.createTextNode("Add Card");
+          addCardBtn.appendChild(text);
+          addCardBtn.addEventListener("click", addCard);
+          colContext.shadowRoot.appendChild(addCardBtn);
+        })
+    }
+
+
+    function addCard() {
+      fetch("http://localhost:3000/cards")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+           let data = {
+              "title": `Card ${myJson.length + 1}`,
+              "description": `Default description for Card ${myJson.length + 1}`,
+              "columnId": parseInt(newVal)
+            };
+          fetch(`http://localhost:3000/cards`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+          })
+          .then(response => {
+            loadCards();
+            response.json();
+          });
+        })
+    }
+
     switch (name) {
       case "title":
-        this.shadowRoot.innerHTML = newVal;
+        this.shadowRoot.innerHTML = `<h2>${newVal}</h2>`;
         break;
 
       case "id":
-        let colContext = this
-        fetch(`http://localhost:3000/cards?columnId=${newVal}`)
-          .then(function(response) {
-            return response.json();
-          })
-          .then(function(myJson) {
-            console.log(colContext.shadowRoot.innerHTML, myJson);
-            for (let j = 0; j < myJson.length; j++) {
-              let card = document.createElement('trello-card');
-              card.id = myJson[j].id;
-              card.title = myJson[j].title;
-              card.setAttribute('description', myJson[j].description);
-              colContext.shadowRoot.appendChild(card);
-            }
-          })
+        loadCards();
         break;
     }
   }
