@@ -1,21 +1,61 @@
 class TrelloBoard extends HTMLElement {
   constructor() {
     super();
+
+    this.attachShadow({ mode: "open" });
+
+  }
+
+  connectedCallback() {
+    let ColNum = 0;
     let context = this;
-    fetch("http://localhost:3000/columns")
-      .then(function(response) {
-        return response.json();
+
+    function loadColumns() {
+      while (context.shadowRoot.lastChild) {
+          context.shadowRoot.removeChild(context.shadowRoot.lastChild);
+      }
+
+      fetch("http://localhost:3000/columns")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          for (let i = 0; i < myJson.length; i++) {
+            let column = document.createElement(`trello-column`);
+            column.id = myJson[i].id;
+            column.title = myJson[i].title;
+            context.shadowRoot.appendChild(column);
+            ColNum = i + 1;
+          }
+
+          let addColumnBtn = document.createElement("BUTTON");
+          let text = document.createTextNode("Add Column");
+          addColumnBtn.appendChild(text);
+          addColumnBtn.addEventListener("click", addColumn);
+          context.shadowRoot.appendChild(addColumnBtn);
+        })
+    }
+
+    function addColumn() {
+      let data = {
+        "title": `Column ${ColNum + 1}`
+      };
+
+      fetch(`http://localhost:3000/columns`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
       })
-      .then(function(myJson) {
-        context.attachShadow({ mode: "open" });
-        console.log(myJson);
-        for (let i = 0; i < myJson.length; i++) {
-          let column = document.createElement(`trello-column`);
-          column.id = myJson[i].id;
-          column.title = myJson[i].title;
-          context.shadowRoot.appendChild(column);
-        }
-      })
+      .then(response => {
+        loadColumns()
+        response.json();
+      });
+    }
+
+
+    loadColumns();
   }
 }
 window.customElements.define("trello-board", TrelloBoard);
