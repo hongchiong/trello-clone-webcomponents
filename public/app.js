@@ -112,7 +112,7 @@ class TrelloColumn extends HTMLElement {
 
     function updateCardColId(e) {
       e.preventDefault();
-      console.log(e);
+      console.log("ihihi");
     }
 
     let style = document.createElement("style")
@@ -129,13 +129,34 @@ class TrelloColumn extends HTMLElement {
     colTitle.type = "text";
     colTitle.id = this.getAttribute("id");
     colTitle.value = this.getAttribute("title");
-
     colTitle.addEventListener("change", updateColumn);
 
     this.shadowRoot.appendChild(style);
     this.shadowRoot.appendChild(colTitle);
 
-    this.setAttribute("ondrop", updateCardColId);
+
+    document.addEventListener("dragover", function(event) {
+      event.preventDefault();
+    }, false);
+
+    this.addEventListener("dragenter", function(event) {
+      if (event.target.tagName == "TRELLO-COLUMN") {
+        event.target.style.opacity = 0.5;
+      }
+    }, false);
+
+    this.addEventListener("dragleave", function(event) {
+      if (event.target.tagName == "TRELLO-COLUMN") {
+        event.target.style.opacity = 1;
+      }
+    }, false);
+
+    this.addEventListener("drop", function(event) {
+      if (event.target.tagName == "TRELLO-COLUMN") {
+        event.target.style.opacity = 1;
+      }
+
+    });
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -244,10 +265,9 @@ class TrelloCard extends HTMLElement {
   connectedCallback() {
     let thisCard = this;
 
-    function drag(e) {
-      console.log("hi");
-    }
-    thisCard.shadowRoot.querySelector('div').setAttribute("ondragstart", drag);
+    thisCard.shadowRoot.querySelector('div').addEventListener("dragstart", function(event) {
+      console.log("iiii");
+    });
 
     function updateDescription() {
       let data = {"description": this.value};

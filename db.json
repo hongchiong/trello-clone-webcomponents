@@ -1,68 +1,44 @@
 {
   "columns": [
     {
-      "title": "Column 6",
-      "id": 6
+      "id": 1,
+      "title": "Column 1"
     },
     {
-      "title": "Column 7",
-      "id": 7
+      "id": 2,
+      "title": "Column 2"
     }
   ],
   "cards": [
     {
-      "title": "Card 19",
-      "description": "Default description for Card 19",
-      "columnId": 6,
-      "id": 19
+      "id": 1,
+      "title": "Card 1",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "columnId": 1
     },
     {
-      "title": "Card 20",
-      "description": "Default description for Card 20",
-      "columnId": 6,
-      "id": 20
+      "id": 2,
+      "title": "Card 2",
+      "description": "Quisque et pellentesque sem.",
+      "columnId": 1
     },
     {
-      "title": "Card 21",
-      "description": "Default description for Card 21",
-      "columnId": 6,
-      "id": 21
+      "id": 3,
+      "title": "Card 3",
+      "description": "Nulla porttitor erat a sollicitudin volutpat.",
+      "columnId": 1
     },
     {
-      "title": "Card 22",
-      "description": "Default description for Card 22",
-      "columnId": 6,
-      "id": 22
+      "id": 4,
+      "title": "Card 4",
+      "description": "Quisque id scelerisque felis, sit amet scelerisque nunc.",
+      "columnId": 2
     },
     {
-      "title": "Card 23",
-      "description": "Default description for Card 23",
-      "columnId": 6,
-      "id": 23
-    },
-    {
-      "title": "Card 24",
-      "description": "Default description for Card 24",
-      "columnId": 7,
-      "id": 24
-    },
-    {
-      "title": "Card 26",
-      "description": "GGGG",
-      "columnId": 7,
-      "id": 26
-    },
-    {
-      "title": "Card 27",
-      "description": "Default description for Card 27",
-      "columnId": 7,
-      "id": 27
-    },
-    {
-      "title": "Card 28",
-      "description": "Default description for Card 28",
-      "columnId": 7,
-      "id": 28
+      "id": 5,
+      "title": "Card 5",
+      "description": "Suspendisse posuere ipsum at dui lacinia, ut faucibus lectus mollis.",
+      "columnId": 2
     }
   ]
 }
