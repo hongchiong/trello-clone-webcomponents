@@ -1,12 +1,16 @@
 {
   "columns": [
     {
-      "id": 1,
-      "title": "Column 1"
+      "title": "Column 4",
+      "id": 4
     },
     {
-      "id": 2,
-      "title": "Column 2"
+      "title": "Column 5",
+      "id": 5
+    },
+    {
+      "title": "Column 6",
+      "id": 6
     }
   ],
   "cards": [
@@ -14,31 +18,25 @@
       "id": 1,
       "title": "Card 1",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "columnId": 1
-    },
-    {
-      "id": 2,
-      "title": "Card 2",
-      "description": "Quisque et pellentesque sem.",
-      "columnId": 1
+      "columnId": "5"
     },
     {
       "id": 3,
       "title": "Card 3",
       "description": "Nulla porttitor erat a sollicitudin volutpat.",
-      "columnId": 1
+      "columnId": "5"
     },
     {
       "id": 4,
       "title": "Card 4",
       "description": "Quisque id scelerisque felis, sit amet scelerisque nunc.",
-      "columnId": 2
+      "columnId": "5"
     },
     {
-      "id": 5,
       "title": "Card 5",
-      "description": "Suspendisse posuere ipsum at dui lacinia, ut faucibus lectus mollis.",
-      "columnId": 2
+      "description": "Default description for Card 5",
+      "columnId": "4",
+      "id": 5
     }
   ]
 }

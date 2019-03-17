@@ -2,12 +2,14 @@
 class TrelloBoard extends HTMLElement {
   constructor() {
     super();
-
     this.attachShadow({ mode: "open" });
-
   }
 
-  connectedCallback() {
+  static get observedAttributes() {
+    return ["reload"];
+  }
+
+  attributeChangedCallback() {
     let ColNum = 0;
     let context = this;
 
@@ -77,6 +79,10 @@ class TrelloBoard extends HTMLElement {
       });
     }
     loadColumns();
+  }
+
+  connectedCallback() {
+    document.querySelector("trello-board").setAttribute("reload", true);
   }
 }
 window.customElements.define("trello-board", TrelloBoard);
@@ -154,8 +160,20 @@ class TrelloColumn extends HTMLElement {
     this.addEventListener("drop", function(event) {
       if (event.target.tagName == "TRELLO-COLUMN") {
         event.target.style.opacity = 1;
-      }
 
+        let data = {"columnId": event.target.id};
+        fetch(`http://localhost:3000/cards/${dragged.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => {
+          document.querySelector("trello-board").setAttribute("reload", true);
+          response.json();
+        });
+      }
     });
   }
 
@@ -218,7 +236,7 @@ class TrelloColumn extends HTMLElement {
 }
 window.customElements.define("trello-column", TrelloColumn);
 
-
+var dragged;
 // Trello Card
 class TrelloCard extends HTMLElement {
   constructor() {
@@ -260,13 +278,11 @@ class TrelloCard extends HTMLElement {
     `;
   }
 
-
-
   connectedCallback() {
     let thisCard = this;
 
     thisCard.shadowRoot.querySelector('div').addEventListener("dragstart", function(event) {
-      console.log("iiii");
+      dragged = event.target;
     });
 
     function updateDescription() {
