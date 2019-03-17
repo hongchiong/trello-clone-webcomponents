@@ -4,7 +4,7 @@ class TrelloBoard extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
   }
-
+  //Reload attribute to activate board reload
   static get observedAttributes() {
     return ["reload"];
   }
@@ -14,51 +14,35 @@ class TrelloBoard extends HTMLElement {
     let context = this;
 
     function loadColumns() {
+      //Removes existing columns before populating
       while (context.shadowRoot.lastChild) {
           context.shadowRoot.removeChild(context.shadowRoot.lastChild);
       }
-
+      //Get columns from DB
       fetch("http://localhost:3000/columns")
         .then(function(response) {
           return response.json();
         })
         .then(function(myJson) {
+          //Create trello-column element for every column
           for (let i = 0; i < myJson.length; i++) {
             let column = document.createElement(`trello-column`);
             column.id = myJson[i].id;
             column.title = myJson[i].title;
-            // column.style = "display: flex";
+            //append column element
             context.shadowRoot.appendChild(column);
-
-            let delBtn = document.createElement("BUTTON");
-            let text = document.createTextNode(`Delete ${myJson[i].title}`);
-            delBtn.id = myJson[i].id;
-            delBtn.appendChild(text);
-            delBtn.addEventListener("click", deleteColumn);
-
-            context.shadowRoot.appendChild(delBtn);
-
+            //store the last column id
             if (i == myJson.length -1) {
               ColNum = myJson[i].id;
             }
           }
-
+          //Creates Add Column button at end of trello board
           let addColumnBtn = document.createElement("BUTTON");
           let text = document.createTextNode("Add Column");
           addColumnBtn.appendChild(text);
           addColumnBtn.addEventListener("click", addColumn);
           context.shadowRoot.appendChild(addColumnBtn);
         })
-    }
-
-    function deleteColumn() {
-      fetch(`http://localhost:3000/columns/${this.getAttribute("id")}`, {
-        method: "DELETE"
-      })
-      .then(response => {
-        loadColumns();
-        response.json()
-      });
     }
 
     function addColumn() {
@@ -74,6 +58,7 @@ class TrelloBoard extends HTMLElement {
         body: JSON.stringify(data)
       })
       .then(response => {
+        //Reload columns after new column creation
         loadColumns()
         response.json();
       });
@@ -82,17 +67,16 @@ class TrelloBoard extends HTMLElement {
   }
 
   connectedCallback() {
+    //Make changes to reload attribute to run above code.
     document.querySelector("trello-board").setAttribute("reload", true);
   }
 }
 window.customElements.define("trello-board", TrelloBoard);
 
-
 //Trello Column
 class TrelloColumn extends HTMLElement {
   constructor() {
     super();
-
     this.attachShadow({ mode: "open" });
   }
 
@@ -103,7 +87,6 @@ class TrelloColumn extends HTMLElement {
   connectedCallback() {
     function updateColumn() {
       let data = { "title": this.value };
-
       fetch(`http://localhost:3000/columns/${this.getAttribute("id")}`, {
         method: "PATCH",
         headers: {
@@ -119,6 +102,16 @@ class TrelloColumn extends HTMLElement {
     function updateCardColId(e) {
       e.preventDefault();
       console.log("ihihi");
+    }
+
+    function deleteColumn() {
+      fetch(`http://localhost:3000/columns/${this.getAttribute("id")}`, {
+        method: "DELETE"
+      })
+      .then(response => {
+        document.querySelector("trello-board").setAttribute("reload", true);
+        response.json()
+      });
     }
 
     let style = document.createElement("style")
@@ -137,9 +130,15 @@ class TrelloColumn extends HTMLElement {
     colTitle.value = this.getAttribute("title");
     colTitle.addEventListener("change", updateColumn);
 
+    let delBtn = document.createElement("BUTTON");
+    let text = document.createTextNode(`Delete ${this.getAttribute("title")}`);
+    delBtn.id = this.getAttribute("id");
+    delBtn.appendChild(text);
+    delBtn.addEventListener("click", deleteColumn);
+
     this.shadowRoot.appendChild(style);
     this.shadowRoot.appendChild(colTitle);
-
+    this.shadowRoot.appendChild(delBtn);
 
     document.addEventListener("dragover", function(event) {
       event.preventDefault();
@@ -179,13 +178,10 @@ class TrelloColumn extends HTMLElement {
 
   attributeChangedCallback(name, oldVal, newVal) {
     let colContext = this;
-
     function loadCards() {
-      console.log(colContext.shadowRoot.childNodes)
-      while (colContext.shadowRoot.childNodes.length > 2) {
+      while (colContext.shadowRoot.childNodes.length > 3) {
           colContext.shadowRoot.removeChild(colContext.shadowRoot.lastChild);
-      }
-
+      };
       fetch(`http://localhost:3000/cards?columnId=${newVal}`)
         .then(function(response) {
           return response.json();
@@ -236,14 +232,12 @@ class TrelloColumn extends HTMLElement {
 }
 window.customElements.define("trello-column", TrelloColumn);
 
-var dragged;
 // Trello Card
+var dragged;
 class TrelloCard extends HTMLElement {
   constructor() {
     super();
-
     this.attachShadow({ mode: "open" });
-
   }
 
   static get observedAttributes() {
@@ -280,7 +274,6 @@ class TrelloCard extends HTMLElement {
 
   connectedCallback() {
     let thisCard = this;
-
     thisCard.shadowRoot.querySelector('div').addEventListener("dragstart", function(event) {
       dragged = event.target;
     });
