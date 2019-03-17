@@ -83,7 +83,6 @@ window.customElements.define("trello-board", TrelloBoard);
 
 
 //Trello Column
-
 class TrelloColumn extends HTMLElement {
   constructor() {
     super();
@@ -111,6 +110,11 @@ class TrelloColumn extends HTMLElement {
       });
     }
 
+    function updateCardColId(e) {
+      e.preventDefault();
+      console.log(e);
+    }
+
     let style = document.createElement("style")
     let styleText = document.createTextNode(`
           input {
@@ -130,13 +134,16 @@ class TrelloColumn extends HTMLElement {
 
     this.shadowRoot.appendChild(style);
     this.shadowRoot.appendChild(colTitle);
+
+    this.setAttribute("ondrop", updateCardColId);
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
     let colContext = this;
 
     function loadCards() {
-      while (colContext.shadowRoot.childNodes.length > 5) {
+      console.log(colContext.shadowRoot.childNodes)
+      while (colContext.shadowRoot.childNodes.length > 2) {
           colContext.shadowRoot.removeChild(colContext.shadowRoot.lastChild);
       }
 
@@ -205,7 +212,6 @@ class TrelloCard extends HTMLElement {
   }
 
   attributeChangedCallback(name ,oldVal, newVal) {
-
     this.shadowRoot.innerHTML = `
         <style>
           div {
@@ -219,10 +225,15 @@ class TrelloCard extends HTMLElement {
             display: block;
             margin-bottom: 10px;
           }
+          textarea {
+            border: none;
+            overflow: auto;
+            resize: none;
+          }
         </style>
-        <div id=${this.getAttribute("id")}>
+        <div id=${this.getAttribute("id")} draggable="true">
           <h4>${this.getAttribute("title")}</h4>
-          <input type="text" style="visibility: hidden" value='${this.getAttribute("description")}''>
+          <textarea style="visibility: hidden" cols="50" rows='${this.getAttribute("description") ? Math.ceil(this.getAttribute("description").length/15) : 0}'>${this.getAttribute("description")}</textarea>
           <button>Delete</button>
         </div>
     `;
@@ -232,6 +243,11 @@ class TrelloCard extends HTMLElement {
 
   connectedCallback() {
     let thisCard = this;
+
+    function drag(e) {
+      console.log("hi");
+    }
+    thisCard.shadowRoot.querySelector('div').setAttribute("ondragstart", drag);
 
     function updateDescription() {
       let data = {"description": this.value};
@@ -248,10 +264,10 @@ class TrelloCard extends HTMLElement {
     }
 
     thisCard.shadowRoot.querySelector("div").addEventListener('click', function() {
-      this.querySelector('input').setAttribute("style", "visibility: display")
+      this.querySelector('textarea').setAttribute("style", "visibility: display")
     });
 
-    thisCard.shadowRoot.querySelector("input").addEventListener("change", updateDescription);
+    thisCard.shadowRoot.querySelector("textarea").addEventListener("change", updateDescription);
 
     thisCard.shadowRoot.querySelector('button').addEventListener('click', function(e) {
       fetch(`http://localhost:3000/cards/${thisCard.getAttribute("id")}`, {
